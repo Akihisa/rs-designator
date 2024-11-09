@@ -67,7 +67,7 @@ impl TokenWithSymbol {
     }
 
     pub fn change_symbol(&mut self, symbol: char) -> Result<(), &'static str> {
-        match symbol {
+        match symbol.to_ascii_lowercase() {
             WHITESPACE => (),
             COMMA => (),
             CLOSE_PAREN => (),
