@@ -99,4 +99,14 @@ impl TokenWithSymbol {
             }
         }
     }
+
+    pub fn merge_token(&mut self, other: &Token) -> Result<(), &'static str> {
+        let Token::Identifier(ident) = &mut self.token else {
+            return Err("only identifiers can be merged");
+        };
+
+        ident.push_str(other.to_string().as_str());
+
+        Ok(())
+    }
 }
