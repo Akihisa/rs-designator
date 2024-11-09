@@ -88,7 +88,10 @@ impl TokenWithSymbol {
     }
 
     pub fn transform(&mut self) {
-        if self.symbol != get_token_symbol(&self.token) {
+        if !self
+            .symbol
+            .eq_ignore_ascii_case(&get_token_symbol(&self.token))
+        {
             match self.symbol.to_ascii_lowercase() {
                 WHITESPACE => self.token = Token::Whitespace,
                 COMMA => self.token = Token::Comma,
