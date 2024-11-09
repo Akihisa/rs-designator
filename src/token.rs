@@ -82,6 +82,10 @@ impl TokenWithSymbol {
         Ok(())
     }
 
+    pub fn parenthesize(&mut self) {
+        self.symbol.make_ascii_uppercase();
+    }
+
     pub fn transform(&mut self) {
         if self.symbol != get_token_symbol(&self.token) {
             match self.symbol.to_ascii_lowercase() {
