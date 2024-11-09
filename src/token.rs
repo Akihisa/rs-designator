@@ -45,6 +45,7 @@ impl fmt::Display for Token {
     }
 }
 
+#[derive(PartialEq, Debug)]
 pub struct TokenWithSymbol {
     symbol: char,
     token: Token,
