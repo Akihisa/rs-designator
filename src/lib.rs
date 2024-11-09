@@ -28,5 +28,17 @@ mod tests {
         assert_eq!(token.change_symbol(RANGE), Ok(()));
         assert_eq!(token.change_symbol(IDENTIFIER), Ok(()));
         assert!(token.change_symbol('a').is_err());
+
+        // 括弧で囲む
+        let mut token = TokenWithSymbol::new(Token::Identifier("abc".to_string()));
+        token.parenthesize();
+        assert_eq!(token.symbol(), IDENTIFIER.to_ascii_uppercase());
+
+        // 連結する
+        assert_eq!(
+            token.merge_token(&Token::Identifier("def".to_string())),
+            Ok(())
+        );
+        assert_eq!(token.token().to_string(), "abcdef".to_string());
     }
 }
