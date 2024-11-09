@@ -3,7 +3,39 @@ mod token;
 
 #[cfg(test)]
 mod tests {
+    use super::lexer::*;
     use super::token::*;
+
+    #[test]
+    fn test_lexer() {
+        let mut lexer = Lexer::new("R1,R2 (R3),R4-9)");
+        assert_eq!(
+            lexer.token(),
+            Some(TokenWithSymbol::new(Token::Identifier("R1".to_string())))
+        );
+        assert_eq!(lexer.token(), Some(TokenWithSymbol::new(Token::Comma)));
+        assert_eq!(
+            lexer.token(),
+            Some(TokenWithSymbol::new(Token::Identifier("R2".to_string())))
+        );
+        assert_eq!(lexer.token(), Some(TokenWithSymbol::new(Token::Whitespace)));
+        assert_eq!(lexer.token(), Some(TokenWithSymbol::new(Token::OpenParen)));
+        assert_eq!(
+            lexer.token(),
+            Some(TokenWithSymbol::new(Token::Identifier("R3".to_string())))
+        );
+        assert_eq!(lexer.token(), Some(TokenWithSymbol::new(Token::CloseParen)));
+        assert_eq!(lexer.token(), Some(TokenWithSymbol::new(Token::Comma)));
+        assert_eq!(
+            lexer.token(),
+            Some(TokenWithSymbol::new(Token::Identifier("R4".to_string())))
+        );
+        assert_eq!(lexer.token(), Some(TokenWithSymbol::new(Token::Range('-'))));
+        assert_eq!(
+            lexer.token(),
+            Some(TokenWithSymbol::new(Token::Identifier("9".to_string())))
+        );
+    }
 
     #[test]
     fn test_token() {
