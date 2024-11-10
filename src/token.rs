@@ -96,6 +96,10 @@ impl TokenWithSymbol {
         self.symbol.to_ascii_lowercase() == IDENTIFIER
     }
 
+    pub fn is_in_parentheses(&self) -> bool {
+        self.symbol == IDENTIFIER.to_ascii_uppercase()
+    }
+
     pub fn convert_symbol_to_whitespace(&mut self) {
         self.symbol = WHITESPACE;
     }
