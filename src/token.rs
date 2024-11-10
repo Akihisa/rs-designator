@@ -50,6 +50,12 @@ pub struct TokenWithSymbol {
     token: Token,
 }
 
+impl fmt::Display for TokenWithSymbol {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}: {}", self.symbol, self.token)
+    }
+}
+
 impl TokenWithSymbol {
     pub fn new(token: Token) -> Self {
         Self {
