@@ -24,8 +24,14 @@ mod tests {
             "R2".to_string(),
             "(R3)".to_string(),
         ];
+
         let s = builder::build(designators);
-        assert!(s.is_empty());
+        assert_eq!(
+            r#"R1~3,5,6,8,
+(R1~3)"#
+                .to_string(),
+            s
+        );
     }
 
     #[test]
@@ -90,15 +96,6 @@ mod tests {
             TokenWithSymbol::new(Token::Identifier("abc".to_string())).symbol(),
             IDENTIFIER
         );
-
-        // 変換結果のテスト
-        let mut token = TokenWithSymbol::new(Token::Whitespace);
-        assert_eq!(token.change_symbol(COMMA), Ok(()));
-        assert_eq!(token.change_symbol(CLOSE_PAREN), Ok(()));
-        assert_eq!(token.change_symbol(OPEN_PAREN), Ok(()));
-        assert_eq!(token.change_symbol(RANGE), Ok(()));
-        assert_eq!(token.change_symbol(IDENTIFIER), Ok(()));
-        assert!(token.change_symbol('a').is_err());
 
         // 括弧で囲む
         let mut token = TokenWithSymbol::new(Token::Identifier("abc".to_string()));

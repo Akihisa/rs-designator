@@ -142,17 +142,18 @@ impl Designator {
     pub fn is_word(&self) -> bool {
         !self.prefix.is_empty() && self.number == 0 && self.suffix.is_none()
     }
-    // pub fn prefix(&self) -> &str {
-    //     self.prefix.as_str()
-    // }
 
-    // pub fn number(&self) -> usize {
-    //     self.number
-    // }
+    pub fn prefix(&self) -> &str {
+        self.prefix.as_str()
+    }
 
-    // pub fn suffix(&self) -> Option<char> {
-    //     self.suffix
-    // }
+    pub fn number(&self) -> usize {
+        self.number
+    }
+
+    pub fn suffix(&self) -> Option<char> {
+        self.suffix
+    }
 
     pub fn has_paren(&self) -> bool {
         self.has_paren
