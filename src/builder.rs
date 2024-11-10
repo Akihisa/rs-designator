@@ -28,9 +28,7 @@ pub fn build(designators: Vec<String>) -> String {
         designator.extend(build_inner(designators.0, true).chars())
     }
 
-    println!("{}", designator);
-
-    String::new()
+    designator
 }
 
 pub fn build_inner(designators: Vec<Designator>, has_paren: bool) -> String {
