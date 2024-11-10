@@ -67,14 +67,38 @@ impl TokenWithSymbol {
         &self.token
     }
 
+    pub fn is_whitespace(&self) -> bool {
+        self.symbol.is_whitespace()
+    }
+
+    pub fn is_comma(&self) -> bool {
+        self.symbol == COMMA
+    }
+
+    pub fn is_close_paren(&self) -> bool {
+        self.symbol == CLOSE_PAREN
+    }
+
+    pub fn is_open_paren(&self) -> bool {
+        self.symbol == OPEN_PAREN
+    }
+
+    pub fn is_range_symbol(&self) -> bool {
+        self.symbol == RANGE
+    }
+
+    pub fn is_identifier(&self) -> bool {
+        self.symbol.to_ascii_lowercase() == IDENTIFIER
+    }
+
     pub fn change_symbol(&mut self, symbol: char) -> Result<(), &'static str> {
         match symbol.to_ascii_lowercase() {
-            WHITESPACE => (),
             COMMA => (),
             CLOSE_PAREN => (),
             OPEN_PAREN => (),
             RANGE => (),
             IDENTIFIER => (),
+            c if c.is_whitespace() => (),
             _ => return Err("invalid token symbol"),
         }
 
