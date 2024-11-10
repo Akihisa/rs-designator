@@ -91,6 +91,21 @@ impl TokenWithSymbol {
         self.symbol.to_ascii_lowercase() == IDENTIFIER
     }
 
+    pub fn convert_symbol_to_whitespace(&mut self) {
+        self.symbol = WHITESPACE;
+    }
+
+    pub fn convert_symbol_to_comma(&mut self) {
+        self.symbol = COMMA;
+    }
+
+    pub fn convert_symbol_to_identifier(&mut self) {
+        // 大文字に変換されている場合も考慮して、自身が識別子でないときにのみ実行する
+        if !self.is_identifier() {
+            self.symbol = IDENTIFIER;
+        }
+    }
+
     pub fn change_symbol(&mut self, symbol: char) -> Result<(), &'static str> {
         match symbol.to_ascii_lowercase() {
             COMMA => (),
