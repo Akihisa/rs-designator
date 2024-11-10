@@ -7,16 +7,13 @@ pub struct Lexer {
 }
 
 fn get_char_token(c: char) -> Option<TokenWithSymbol> {
-    if c.is_whitespace() {
-        return Some(TokenWithSymbol::new(Token::Whitespace));
-    }
-
-    // 範囲記号は '~' が基本だが、'-', '～' も許容する
     match c {
         token::COMMA => Some(TokenWithSymbol::new(Token::Comma)),
         token::CLOSE_PAREN => Some(TokenWithSymbol::new(Token::CloseParen)),
         token::OPEN_PAREN => Some(TokenWithSymbol::new(Token::OpenParen)),
+        // 範囲記号は '~' が基本だが、'-', '～' も許容する
         token::RANGE | '-' | '～' => Some(TokenWithSymbol::new(Token::Range(c))),
+        c if c.is_whitespace() => Some(TokenWithSymbol::new(Token::Whitespace)),
         _ => None,
     }
 }
