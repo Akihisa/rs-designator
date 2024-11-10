@@ -1,5 +1,6 @@
 use super::lexer::Lexer;
 use super::token::*;
+use crate::designator::Designator;
 use std::slice::IterMut;
 use std::vec::IntoIter;
 
@@ -24,9 +25,10 @@ impl Parser {
         }
         // 以降を読み出す
         tokens.append(&mut self.read());
+
         // 最初の状態を文字列に変換して保存しておく
-        let src = tokens.iter().map(|tok| tok.symbol()).collect::<String>();
-        println!("{}", src);
+        // let src = tokens.iter().map(|tok| tok.symbol()).collect::<String>();
+        // println!("{}", src);
 
         // インライン括弧の処理
         // 識別子の後の開き括弧から閉じ括弧までの識別子化
@@ -41,19 +43,20 @@ impl Parser {
         replace_whitespace_to_comma(&mut tokens);
         // 不正な範囲記号の識別子化
         replace_invalid_range_symbols(&mut tokens);
-        // トークン列の整列
-        let mut tokens = arrange(tokens.into_iter());
+        // トークン列の作り直し
+        let mut tokens = rebuild(tokens.into_iter());
         // 範囲記号を前置記法に変換
         // 整列の後に実行しないと、識別子が結合される
         convert_prefix_notation(&mut tokens);
 
-        let rel = tokens.iter().map(|tok| tok.symbol()).collect::<String>();
-        println!("{}", rel);
-        // for token in tokens {
-        //     println!("{}", token);
-        // }
+        // 最終結果
+        // let rel = tokens.iter().map(|tok| tok.symbol()).collect::<String>();
+        // println!("{}", rel);
 
-        Vec::new()
+        // Designator に変換する
+        let designators: Vec<Designator> = convert_to_designators(tokens);
+
+        designators.into_iter().map(|d| d.to_string()).collect()
     }
 
     fn skip_start(&mut self) -> Option<TokenWithSymbol> {
@@ -207,7 +210,7 @@ fn replace_invalid_range_symbols(tokens: &mut Vec<TokenWithSymbol>) {
     }
 }
 
-fn arrange(iter: IntoIter<TokenWithSymbol>) -> Vec<TokenWithSymbol> {
+fn rebuild(iter: IntoIter<TokenWithSymbol>) -> Vec<TokenWithSymbol> {
     let mut tokens: Vec<TokenWithSymbol> = Vec::new();
 
     for mut token in iter {
@@ -238,4 +241,72 @@ fn convert_prefix_notation(tokens: &mut Vec<TokenWithSymbol>) {
         let pos = chunk.iter().position(|tok| tok.is_range()).unwrap();
         chunk.swap(0, pos);
     }
+}
+
+fn convert_to_designators(tokens: Vec<TokenWithSymbol>) -> Vec<Designator> {
+    let mut designators: Vec<Designator> = Vec::new();
+
+    for chunk in tokens.split(|tok| tok.is_comma()) {
+        let mut iter = chunk.iter().peekable();
+        let prev = designators.last();
+        match iter.next() {
+            Some(tok) if tok.is_identifier() => {
+                let mut designator = Designator::from(tok.token().to_string().as_str());
+                if let Some(prev) = prev {
+                    designator.complement(prev);
+                }
+                designators.push(designator);
+            }
+            Some(tok) if tok.is_range() => {
+                // 範囲として不正なときに戻すためのベクタ
+                let mut elements: Vec<String> = Vec::new();
+                // ホワイトスペースか？
+                if iter.peek().is_some_and(|tok| tok.is_whitespace()) {
+                    elements.push(String::new());
+                    iter.next();
+                }
+                // 一つめの参照名
+                let left = iter.next().unwrap().token().to_string();
+                elements.insert(0, left.clone());
+                // 範囲記号
+                elements.push(tok.token().to_string());
+                let mut left = Designator::from(left.as_str());
+                if let Some(prev) = prev {
+                    left.complement(prev);
+                }
+                // ホワイトスペースか？
+                if iter.peek().is_some_and(|tok| tok.is_whitespace()) {
+                    elements.push(String::new());
+                    iter.next();
+                }
+                // 2つめの参照名
+                let right = iter.next().unwrap().token().to_string();
+                elements.push(right.clone());
+                let mut right = Designator::from(right.as_str());
+                right.complement(&left);
+
+                // 2つの差分をとって、二つめの方が大きい場合
+                if right.difference(&left).is_some_and(|diff| diff > 0) {
+                    designators.push(left.clone());
+                    while let Some(designator) = left.next() {
+                        if right.difference(&designator).is_some_and(|diff| diff > 0) {
+                            designators.push(designator.clone());
+                        } else {
+                            break;
+                        }
+                        left = designator;
+                    }
+                    designators.push(right);
+                } else {
+                    for elem in elements.split(|e| e.is_empty()) {
+                        let s = String::from_iter(elem.iter().map(|s| s.as_str()));
+                        designators.push(Designator::from(s.as_str()));
+                    }
+                }
+            }
+            _ => (),
+        }
+    }
+
+    designators
 }
