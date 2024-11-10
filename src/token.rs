@@ -7,7 +7,6 @@ pub(crate) const CLOSE_PAREN: char = ')';
 pub(crate) const OPEN_PAREN: char = '(';
 pub(crate) const RANGE: char = '~';
 pub(crate) const IDENTIFIER: char = 'i';
-pub(crate) const SKIP: char = '>';
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum Token {
@@ -51,6 +50,12 @@ pub struct TokenWithSymbol {
     token: Token,
 }
 
+impl fmt::Display for TokenWithSymbol {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}: {}", self.symbol, self.token)
+    }
+}
+
 impl TokenWithSymbol {
     pub fn new(token: Token) -> Self {
         Self {
@@ -67,14 +72,57 @@ impl TokenWithSymbol {
         &self.token
     }
 
+    pub fn is_whitespace(&self) -> bool {
+        self.symbol.is_whitespace()
+    }
+
+    pub fn is_comma(&self) -> bool {
+        self.symbol == COMMA
+    }
+
+    pub fn is_close_paren(&self) -> bool {
+        self.symbol == CLOSE_PAREN
+    }
+
+    pub fn is_open_paren(&self) -> bool {
+        self.symbol == OPEN_PAREN
+    }
+
+    pub fn is_range(&self) -> bool {
+        self.symbol == RANGE
+    }
+
+    pub fn is_identifier(&self) -> bool {
+        self.symbol.to_ascii_lowercase() == IDENTIFIER
+    }
+
+    pub fn is_in_parentheses(&self) -> bool {
+        self.symbol == IDENTIFIER.to_ascii_uppercase()
+    }
+
+    pub fn convert_symbol_to_whitespace(&mut self) {
+        self.symbol = WHITESPACE;
+    }
+
+    pub fn convert_symbol_to_comma(&mut self) {
+        self.symbol = COMMA;
+    }
+
+    pub fn convert_symbol_to_identifier(&mut self) {
+        // 大文字に変換されている場合も考慮して、自身が識別子でないときにのみ実行する
+        if !self.is_identifier() {
+            self.symbol = IDENTIFIER;
+        }
+    }
+
     pub fn change_symbol(&mut self, symbol: char) -> Result<(), &'static str> {
         match symbol.to_ascii_lowercase() {
-            WHITESPACE => (),
             COMMA => (),
             CLOSE_PAREN => (),
             OPEN_PAREN => (),
             RANGE => (),
             IDENTIFIER => (),
+            c if c.is_whitespace() => (),
             _ => return Err("invalid token symbol"),
         }
 
@@ -95,7 +143,16 @@ impl TokenWithSymbol {
                 CLOSE_PAREN => self.token = Token::CloseParen,
                 OPEN_PAREN => self.token = Token::OpenParen,
                 RANGE => self.token = Token::Range(RANGE),
-                IDENTIFIER => self.token = Token::Identifier(self.token.to_string()),
+                IDENTIFIER => {
+                    self.token = {
+                        let mut ident = self.token.to_string();
+                        if self.is_in_parentheses() {
+                            ident.insert(0, OPEN_PAREN);
+                            ident.push(CLOSE_PAREN);
+                        }
+                        Token::Identifier(ident)
+                    }
+                }
                 _ => unreachable!(),
             }
         }
