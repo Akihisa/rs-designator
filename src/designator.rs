@@ -1,4 +1,5 @@
 use super::token::{CLOSE_PAREN, OPEN_PAREN};
+use core::cmp;
 use std::fmt;
 use std::fmt::Write;
 use std::str::FromStr;
@@ -88,6 +89,30 @@ impl From<&str> for Designator {
             suffix,
             has_paren,
         }
+    }
+}
+
+impl PartialEq for Designator {
+    fn eq(&self, other: &Self) -> bool {
+        self.cmp(other) == cmp::Ordering::Equal
+    }
+}
+
+impl Eq for Designator {}
+
+impl PartialOrd for Designator {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Designator {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
+        self.has_paren
+            .cmp(&other.has_paren)
+            .then(self.prefix.cmp(&other.prefix))
+            .then(self.number.cmp(&other.number))
+            .then(self.suffix.cmp(&other.suffix))
     }
 }
 
