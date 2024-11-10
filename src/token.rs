@@ -115,22 +115,6 @@ impl TokenWithSymbol {
         }
     }
 
-    pub fn change_symbol(&mut self, symbol: char) -> Result<(), &'static str> {
-        match symbol.to_ascii_lowercase() {
-            COMMA => (),
-            CLOSE_PAREN => (),
-            OPEN_PAREN => (),
-            RANGE => (),
-            IDENTIFIER => (),
-            c if c.is_whitespace() => (),
-            _ => return Err("invalid token symbol"),
-        }
-
-        self.symbol = symbol;
-
-        Ok(())
-    }
-
     pub fn parenthesize(&mut self) {
         self.symbol.make_ascii_uppercase();
     }
