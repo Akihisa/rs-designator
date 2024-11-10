@@ -136,17 +136,23 @@ impl TokenWithSymbol {
     }
 
     pub fn transform(&mut self) {
-        if !self
-            .symbol
-            .eq_ignore_ascii_case(&get_token_symbol(&self.token))
-        {
+        if self.symbol != get_token_symbol(&self.token) {
             match self.symbol.to_ascii_lowercase() {
                 WHITESPACE => self.token = Token::Whitespace,
                 COMMA => self.token = Token::Comma,
                 CLOSE_PAREN => self.token = Token::CloseParen,
                 OPEN_PAREN => self.token = Token::OpenParen,
                 RANGE => self.token = Token::Range(RANGE),
-                IDENTIFIER => self.token = Token::Identifier(self.token.to_string()),
+                IDENTIFIER => {
+                    self.token = {
+                        let mut ident = self.token.to_string();
+                        if self.is_in_parentheses() {
+                            ident.insert(0, OPEN_PAREN);
+                            ident.push(CLOSE_PAREN);
+                        }
+                        Token::Identifier(ident)
+                    }
+                }
                 _ => unreachable!(),
             }
         }
