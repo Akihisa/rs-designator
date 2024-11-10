@@ -1,3 +1,4 @@
+pub mod builder;
 mod designator;
 mod lexer;
 pub mod parser;
