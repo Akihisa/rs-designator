@@ -83,7 +83,7 @@ impl TokenWithSymbol {
         self.symbol == OPEN_PAREN
     }
 
-    pub fn is_range_symbol(&self) -> bool {
+    pub fn is_range(&self) -> bool {
         self.symbol == RANGE
     }
 
