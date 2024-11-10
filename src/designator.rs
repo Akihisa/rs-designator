@@ -154,9 +154,40 @@ impl Designator {
     //     self.suffix
     // }
 
-    // pub fn has_paren(&self) -> bool {
-    //     self.has_paren
-    // }
+    pub fn has_paren(&self) -> bool {
+        self.has_paren
+    }
+
+    pub fn without_parentheses(&self) -> Self {
+        Self {
+            prefix: self.prefix.clone(),
+            number: self.number,
+            suffix: self.suffix,
+            has_paren: false,
+        }
+    }
+
+    pub fn to_omitted_string(&self, other: &Self) -> String {
+        if self.is_empty() || other.is_empty() || self.is_word() || other.is_word() {
+            return self.to_string();
+        }
+
+        let mut omitted = String::new();
+
+        if self.prefix != other.prefix {
+            omitted += self.prefix.as_str()
+        }
+
+        if self.number > 0 {
+            omitted += self.number.to_string().as_str();
+        }
+
+        if let Some(suffix) = self.suffix {
+            omitted.push(suffix);
+        }
+
+        omitted
+    }
 
     pub fn next(&self) -> Option<Self> {
         if self.is_empty() || self.is_word() {
