@@ -7,7 +7,6 @@ pub(crate) const CLOSE_PAREN: char = ')';
 pub(crate) const OPEN_PAREN: char = '(';
 pub(crate) const RANGE: char = '~';
 pub(crate) const IDENTIFIER: char = 'i';
-pub(crate) const SKIP: char = '>';
 
 #[derive(Clone, PartialEq, Debug)]
 pub enum Token {
