@@ -1,3 +1,4 @@
+pub mod builder;
 mod designator;
 mod lexer;
 pub mod parser;
@@ -5,9 +6,27 @@ mod token;
 
 #[cfg(test)]
 mod tests {
+    use super::builder;
     use super::lexer::*;
     use super::token::*;
     use crate::parser::Parser;
+
+    #[test]
+    fn test_builder() {
+        let designators = vec![
+            "R5".to_string(),
+            "R1".to_string(),
+            "(R2)".to_string(),
+            "R3".to_string(),
+            "(R1)".to_string(),
+            "R6".to_string(),
+            "R8".to_string(),
+            "R2".to_string(),
+            "(R3)".to_string(),
+        ];
+        let s = builder::build(designators);
+        assert!(s.is_empty());
+    }
 
     #[test]
     fn test_parser() {

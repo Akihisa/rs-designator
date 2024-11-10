@@ -1,4 +1,5 @@
 use super::token::{CLOSE_PAREN, OPEN_PAREN};
+use core::cmp;
 use std::fmt;
 use std::fmt::Write;
 use std::str::FromStr;
@@ -91,6 +92,30 @@ impl From<&str> for Designator {
     }
 }
 
+impl PartialEq for Designator {
+    fn eq(&self, other: &Self) -> bool {
+        self.cmp(other) == cmp::Ordering::Equal
+    }
+}
+
+impl Eq for Designator {}
+
+impl PartialOrd for Designator {
+    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Designator {
+    fn cmp(&self, other: &Self) -> cmp::Ordering {
+        self.has_paren
+            .cmp(&other.has_paren)
+            .then(self.prefix.cmp(&other.prefix))
+            .then(self.number.cmp(&other.number))
+            .then(self.suffix.cmp(&other.suffix))
+    }
+}
+
 impl Designator {
     fn new() -> Self {
         Self {
@@ -129,9 +154,40 @@ impl Designator {
     //     self.suffix
     // }
 
-    // pub fn has_paren(&self) -> bool {
-    //     self.has_paren
-    // }
+    pub fn has_paren(&self) -> bool {
+        self.has_paren
+    }
+
+    pub fn without_parentheses(&self) -> Self {
+        Self {
+            prefix: self.prefix.clone(),
+            number: self.number,
+            suffix: self.suffix,
+            has_paren: false,
+        }
+    }
+
+    pub fn to_omitted_string(&self, other: &Self) -> String {
+        if self.is_empty() || other.is_empty() || self.is_word() || other.is_word() {
+            return self.to_string();
+        }
+
+        let mut omitted = String::new();
+
+        if self.prefix != other.prefix {
+            omitted += self.prefix.as_str()
+        }
+
+        if self.number > 0 {
+            omitted += self.number.to_string().as_str();
+        }
+
+        if let Some(suffix) = self.suffix {
+            omitted.push(suffix);
+        }
+
+        omitted
+    }
 
     pub fn next(&self) -> Option<Self> {
         if self.is_empty() || self.is_word() {
