@@ -1,10 +1,29 @@
+mod designator;
 mod lexer;
+pub mod parser;
 mod token;
 
 #[cfg(test)]
 mod tests {
     use super::lexer::*;
     use super::token::*;
+    use crate::parser::Parser;
+
+    #[test]
+    fn test_parser() {
+        let input = r"R1-3,5,6,(C3)";
+        let mut parser = Parser::new(input);
+        let designators = parser.parse();
+        assert_eq!(designators.len(), 6);
+        let mut iter = designators.into_iter();
+        assert_eq!(iter.next(), Some("R1".to_string()));
+        assert_eq!(iter.next(), Some("R2".to_string()));
+        assert_eq!(iter.next(), Some("R3".to_string()));
+        assert_eq!(iter.next(), Some("R5".to_string()));
+        assert_eq!(iter.next(), Some("R6".to_string()));
+        assert_eq!(iter.next(), Some("(C3)".to_string()));
+        assert_eq!(iter.next(), None);
+    }
 
     #[test]
     fn test_lexer() {
