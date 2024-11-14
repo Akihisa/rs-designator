@@ -163,7 +163,23 @@ fn put_in_parentheses(tokens: IterMut<TokenWithSymbol>) {
 }
 
 fn replace_whitespace_to_comma(tokens: &mut Vec<TokenWithSymbol>) {
+    // windows(3) を使った処理は、前後が必要になるため、先頭、末尾のホワイトスペースは置き換えられない
+    // 先頭のホワイトスペースを変換
+    tokens
+        .iter_mut()
+        .take_while(|tok| tok.is_whitespace())
+        .for_each(|tok| tok.convert_symbol_to_comma());
+
+    // 末尾のホワイトスペースを変換
+    tokens
+        .iter_mut()
+        .rev()
+        .take_while(|tok| tok.is_whitespace())
+        .for_each(|tok| tok.convert_symbol_to_comma());
+
+    // 前後が範囲記号でないとき
     let mut indices: Vec<usize> = Vec::new();
+
     for (i, w) in tokens.windows(3).enumerate() {
         // 空白の前後が範囲記号か？
         if w[0].is_range() {
@@ -249,6 +265,7 @@ fn convert_to_designators(tokens: Vec<TokenWithSymbol>) -> Vec<Designator> {
     for chunk in tokens.split(|tok| tok.is_comma()) {
         let mut iter = chunk.iter().peekable();
         let prev = designators.last();
+
         match iter.next() {
             Some(tok) if tok.is_identifier() => {
                 let mut designator = Designator::from(tok.token().to_string().as_str());
